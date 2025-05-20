@@ -1,2 +1,29 @@
 server:
     port: 8000
+Spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/link?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+        username: root
+        password: playlol.com
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        hikari:
+            maximum-pool-size: 10
+            minimum-idle: 5
+            idle-timeout: 600000
+            max-lifetime: 1800000
+            connection-timeout: 30000
+            pool-name: HikariCP
+    data:
+        redis:
+            host: 127.0.0.1
+            port: 6379
+    jackson:
+        date-format: yyyy-MM-dd HH:mm:ss
+        time-zone: GMT+8
+mybatis-plus:
+    global-config:
+        db-config:
+            logic-delete-field: delFlag       # 实体类中逻辑删除字段名
+            logic-delete-value: 1             # 删除时的值
+            logic-not-delete-value: 0         # 未删除的值
+

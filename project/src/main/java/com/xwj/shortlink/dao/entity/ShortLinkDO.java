@@ -1,8 +1,10 @@
 package com.xwj.shortlink.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xwj.shortlink.common.databsase.BaseDO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,7 @@ import java.util.Date;
  */
 @SuppressWarnings("serial")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_link")
@@ -46,6 +49,7 @@ public class ShortLinkDO extends BaseDO {
     //有效期
     private Date validDate;
     //描述
+    @TableField("`describe`")
     private String describe;
     //历史PV
     private Integer totalPv;

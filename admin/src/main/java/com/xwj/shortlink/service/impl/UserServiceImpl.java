@@ -123,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo> implements 
         //再检查用户是否已经登录过了,如果登录过了延长token 有效期，并且返回 token
         Map<Object, Object> loginMap = stringRedisTemplate.opsForHash().entries("login:" + requestParam.getUsername());
         if (CollUtil.isNotEmpty(loginMap)) {
-            stringRedisTemplate.expire("login:" + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
+            stringRedisTemplate.expire("login:" + requestParam.getUsername(), 30L, TimeUnit.DAYS);
             String token = loginMap.keySet().stream()
                     .findFirst()
                     .map(Object::toString)
@@ -151,7 +151,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo> implements 
          *  Val：JSON 字符串（用户信息）
          */
         stringRedisTemplate.opsForHash().put("login:" + requestParam.getUsername(), token, JSON.toJSONString(user));
-        stringRedisTemplate.expire("login:" + requestParam.getUsername(), 30L, TimeUnit.MINUTES);
+        stringRedisTemplate.expire("login:" + requestParam.getUsername(), 30L, TimeUnit.DAYS);
         return new UserLoginRespDTO(token);
     }
 
