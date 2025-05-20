@@ -3,12 +3,15 @@ package com.xwj.shortlink.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwj.shortlink.common.convention.exception.ServiceException;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
 import com.xwj.shortlink.util.HashUtil;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +66,22 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
         linkCreateCachePenetrationBloomFilter.add(fullShortUrl);
         return BeanUtil.copyProperties(shortLinkDO, ShortLinkProjectCreateRespDTO.class);
+    }
+
+    /**
+     * 分页查询短链接
+     *
+     * @return
+     */
+    @Override
+    public IPage<ShortLinkProjectPageRespDTO> ShortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
+        queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
+        queryWrapper.eq(ShortLinkDO::getDelFlag, 0);
+        ShortLinkProjectPageReqDTO shortLinkProjectPageReqDTO = baseMapper.selectPage(requestParam, queryWrapper);
+        System.out.println(shortLinkProjectPageReqDTO.getRecords());
+        return shortLinkProjectPageReqDTO.convert(shortLinkDO -> BeanUtil.toBean(shortLinkDO, ShortLinkProjectPageRespDTO.class));
     }
 
     /**
