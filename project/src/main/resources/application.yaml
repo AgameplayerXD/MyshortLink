@@ -2,17 +2,10 @@ server:
     port: 8000
 Spring:
     datasource:
-        url: jdbc:mysql://localhost:3306/link?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-        username: root
-        password: playlol.com
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        hikari:
-            maximum-pool-size: 10
-            minimum-idle: 5
-            idle-timeout: 600000
-            max-lifetime: 1800000
-            connection-timeout: 30000
-            pool-name: HikariCP
+        # ShardingSphere 对 Driver 自定义，实现分库分表等隐藏逻辑
+        driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+        # ShardingSphere 配置文件路径
+        url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
     data:
         redis:
             host: 127.0.0.1
