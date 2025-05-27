@@ -4,13 +4,17 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xwj.shortlink.common.convention.exception.ClientException;
 import com.xwj.shortlink.common.convention.exception.ServiceException;
+import com.xwj.shortlink.common.enums.VailDateTypeEnum;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
@@ -21,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -103,6 +108,60 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .groupBy("gid");
         List<Map<String, Object>> maps = baseMapper.selectMaps(queryWrapper);
         return BeanUtil.copyToList(maps, ShortLinkProjectCountLinkRespDTO.class);
+    }
+
+
+    //TODO 后期需要优化
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateShortLink(ShortLinkProjectUpdateReqDTO requestParam) {
+        //先查询所要修改的短链接是否存在
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShortLinkDO::getGid, requestParam.getOriginGid());
+        queryWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
+        queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
+        ShortLinkDO hasLink = baseMapper.selectOne(queryWrapper);
+        if (Objects.isNull(hasLink)) {
+            throw new ClientException("短链接记录不存在");
+        }
+        //判断是否需要修改 gid，如果需要修改gid，那么则先删除在新增，否则可以直接进行修改
+        if (Objects.equals(hasLink.getGid(), requestParam.getGid())) {
+            //gid 相等，可以直接修改内容
+            LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
+            updateWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
+            updateWrapper.eq(ShortLinkDO::getEnableStatus, 0);
+            updateWrapper.set(Objects.equals(requestParam.getValidDateType(), VailDateTypeEnum.PERMANENT.getType()), ShortLinkDO::getValidDate, null);
+            updateWrapper.set(ShortLinkDO::getGid, requestParam.getGid());
+            updateWrapper.set(ShortLinkDO::getOriginUrl, requestParam.getOriginUrl());
+            updateWrapper.set(ShortLinkDO::getDescribe, requestParam.getDescribe());
+            updateWrapper.set(ShortLinkDO::getValidDateType, requestParam.getValidDateType());
+            updateWrapper.set(ShortLinkDO::getValidDate, requestParam.getValidDate());
+            update(updateWrapper);
+        } else {
+            LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
+            updateWrapper.eq(ShortLinkDO::getGid, hasLink.getGid());
+            updateWrapper.eq(ShortLinkDO::getEnableStatus, 0);
+            baseMapper.delete(updateWrapper);
+            ShortLinkDO shortLinkDO = ShortLinkDO.builder()
+                    .domain(hasLink.getDomain())
+                    .originUrl(requestParam.getOriginUrl())
+                    .gid(requestParam.getGid())
+                    .createdType(hasLink.getCreatedType())
+                    .validDateType(requestParam.getValidDateType())
+                    .validDate(requestParam.getValidDate())
+                    .describe(requestParam.getDescribe())
+                    .shortUri(hasLink.getShortUri())
+                    .enableStatus(hasLink.getEnableStatus())
+                    .totalPv(hasLink.getTotalPv())
+                    .totalUv(hasLink.getTotalUv())
+                    .totalUip(hasLink.getTotalUip())
+                    .fullShortUrl(hasLink.getFullShortUrl())
+                    .delTime(0L)
+                    .build();
+            baseMapper.insert(shortLinkDO);
+        }
     }
 
     /**

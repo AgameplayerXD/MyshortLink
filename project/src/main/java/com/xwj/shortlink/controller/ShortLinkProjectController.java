@@ -5,6 +5,7 @@ import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
@@ -53,5 +54,10 @@ public class ShortLinkProjectController {
     @GetMapping("/api/short-link/v1/count")
     public Result<List<ShortLinkProjectCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam) {
         return Results.success(shortLinkService.countGroupLinkCount(requestParam));
+    }
+
+    public Result<Void> updateShortLink(@RequestBody ShortLinkProjectUpdateReqDTO requestParam) {
+        shortLinkService.updateShortLink(requestParam);
+        return Results.success();
     }
 }

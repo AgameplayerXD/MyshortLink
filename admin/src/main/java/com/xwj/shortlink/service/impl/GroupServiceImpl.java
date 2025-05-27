@@ -34,23 +34,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     };
 
     /**
-     * 添加短链接分组
+     * 添加短链接分组，使用当前登录用户来添加
      *
      * @param groupName 分组名字
      */
     @Override
     public void addShotLinkGroup(String groupName) {
-        String gid;
-        do {
-            gid = RandomGenerator.generateRandom();
-        } while (!hasGid(null, gid));
-        GroupDO group = GroupDO.builder()
-                .gid(gid)
-                .sortOrder(0)
-                .name(groupName)
-                .username(UserContext.getUsername())
-                .build();
-        save(group);
+        addShotLinkGroup(UserContext.getUsername(), groupName);
     }
 
     /**
