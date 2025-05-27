@@ -7,4 +7,5 @@ import com.xwj.shortlink.dao.entity.ShortLinkDO;
  * 短链接对象持久层
  */
 public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
+
 }

@@ -3,6 +3,7 @@ package com.xwj.shortlink.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwj.shortlink.common.convention.exception.ServiceException;
@@ -10,6 +11,7 @@ import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
@@ -20,6 +22,8 @@ import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -35,7 +39,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public ShortLinkProjectCreateRespDTO ShortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
+    public ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
         //通过原始链接来生成短链接
         //先生成 6 位的 Suffix
         String shortUri = generateSuffix(requestParam);
@@ -74,7 +78,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public IPage<ShortLinkProjectPageRespDTO> ShortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
+    public IPage<ShortLinkProjectPageRespDTO> shortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
         queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
@@ -82,6 +86,23 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         ShortLinkProjectPageReqDTO shortLinkProjectPageReqDTO = baseMapper.selectPage(requestParam, queryWrapper);
         System.out.println(shortLinkProjectPageReqDTO.getRecords());
         return shortLinkProjectPageReqDTO.convert(shortLinkDO -> BeanUtil.toBean(shortLinkDO, ShortLinkProjectPageRespDTO.class));
+    }
+
+    /**
+     * 查询当前分组下的短链接数量
+     *
+     * @param requestParam gid 的列表
+     * @return ShortLinkProjectCountLinkRespDTO 列表其中包含了 gid 和当前分组下的短链接数量
+     */
+    @Override
+    public List<ShortLinkProjectCountLinkRespDTO> countGroupLinkCount(List<String> requestParam) {
+        QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("gid as gid ,count(*) as ShortLinkCount")
+                .in("gid", requestParam)
+                .eq("enable_status", 0)
+                .groupBy("gid");
+        List<Map<String, Object>> maps = baseMapper.selectMaps(queryWrapper);
+        return BeanUtil.copyToList(maps, ShortLinkProjectCountLinkRespDTO.class);
     }
 
     /**
