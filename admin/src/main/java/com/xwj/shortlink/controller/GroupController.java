@@ -60,6 +60,12 @@ public class GroupController {
         return Results.success(groupService.sortShotLinkGroup(requestParam));
     }
 
+    /**
+     * 删除当前组下的短链接
+     *
+     * @param gid
+     * @return
+     */
     @DeleteMapping("/api/short-link/admin/v1/group")
     public Result<Void> deleteShortLinkGroup(@RequestParam("gid") String gid){
         groupService.deleteShortLinkGroup(gid);
