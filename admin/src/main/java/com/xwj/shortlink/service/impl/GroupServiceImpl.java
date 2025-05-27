@@ -6,17 +6,22 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwj.shortlink.common.biz.UserContext;
 import com.xwj.shortlink.common.convention.exception.ClientException;
+import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.dao.entity.GroupDO;
 import com.xwj.shortlink.dao.mapper.GroupMapper;
 import com.xwj.shortlink.dto.req.GroupModifyReqDTO;
 import com.xwj.shortlink.dto.req.GroupSortReqDTO;
 import com.xwj.shortlink.dto.resp.GroupRespDTO;
+import com.xwj.shortlink.remote.ShortLinkRemoteService;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
 import com.xwj.shortlink.service.GroupService;
 import com.xwj.shortlink.util.RandomGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 短链接分组业务实现层
@@ -24,6 +29,10 @@ import java.util.List;
 @Slf4j
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+
+    ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {
+    };
+
     /**
      * 添加短链接分组
      *
@@ -53,7 +62,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         queryWrapper.eq(GroupDO::getDelFlag, 0);
         queryWrapper.orderByDesc(GroupDO::getSortOrder, GroupDO::getUpdateTime);
         List<GroupDO> groupDOS = list(queryWrapper);
-        return BeanUtil.copyToList(groupDOS, GroupRespDTO.class);
+        //得到当前用户所创建的所有分组的 gid 列表
+        List<String> gidList = groupDOS.stream()
+                .map(GroupDO::getGid)
+                .toList();
+        //调用中台的查询 gid 下短链接数量的方法，该方法返回 gid 和对应的短链接数量
+        Result<List<ShortLinkRemoteCountLinkRespDTO>> listResult = shortLinkRemoteService.countGroupLinkCount(gidList);
+        List<ShortLinkRemoteCountLinkRespDTO> gidAndCountList = listResult.getData();
+        //填充 GroupRespDTO 响应对象中空缺的短链接数量字段
+        List<GroupRespDTO> groupRespDTOS = BeanUtil.copyToList(groupDOS, GroupRespDTO.class);
+        groupRespDTOS.forEach(each -> {
+            Optional<ShortLinkRemoteCountLinkRespDTO> first = listResult.getData().stream()
+                    .filter(item -> Objects.equals(each.getGid(), item.getGid()))
+                    .findFirst();
+            first.ifPresent(item -> each.setShortLinkCount(item.getShortLinkCount()));
+        });
+        return groupRespDTOS;
     }
 
     /**

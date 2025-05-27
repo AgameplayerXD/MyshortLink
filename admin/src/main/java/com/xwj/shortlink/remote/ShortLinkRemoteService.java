@@ -9,8 +9,10 @@ import com.xwj.shortlink.remote.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkProjectPageReqDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +25,7 @@ public interface ShortLinkRemoteService {
      * @param requestParam
      * @return
      */
-    default Result<IPage<ShortLinkProjectPageRespDTO>> ShortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
+    default Result<IPage<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
         Map<String, Object> getParam = new HashMap<>();
         getParam.put("gid", requestParam.getGid());
         getParam.put("current", requestParam.getCurrent());
@@ -39,8 +41,16 @@ public interface ShortLinkRemoteService {
      * @param requestParam
      * @return
      */
-    default Result<ShortLinkProjectCreateRespDTO> ShortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
+    default Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
         String responseStr = HttpUtil.post("http://localhost:8000/api/short-link/v1/create", JSON.toJSONString(requestParam));
+        return JSON.parseObject(responseStr, new TypeReference<>() {
+        });
+    }
+
+    default Result<List<ShortLinkRemoteCountLinkRespDTO>> countGroupLinkCount(List<String> requestParam) {
+        Map<String, Object> getParam = new HashMap<>();
+        getParam.put("requestParam", requestParam);
+        String responseStr = HttpUtil.get("http://localhost:8000/api/short-link/v1/count", getParam);
         return JSON.parseObject(responseStr, new TypeReference<>() {
         });
     }

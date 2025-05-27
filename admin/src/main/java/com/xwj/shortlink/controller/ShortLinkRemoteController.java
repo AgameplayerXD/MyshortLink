@@ -29,7 +29,7 @@ public class ShortLinkRemoteController {
 
     @GetMapping("/api/short-link/admin/v1/page")
     public Result<IPage<ShortLinkProjectPageRespDTO>> shortLinkRemotePage(ShortLinkProjectPageReqDTO requestParam) {
-        return shortLinkRemoteService.ShortLinkProjectPage(requestParam);
+        return shortLinkRemoteService.shortLinkProjectPage(requestParam);
     }
 
     /**
@@ -40,7 +40,7 @@ public class ShortLinkRemoteController {
      */
     @PostMapping("/api/short-link/admin/v1/create")
     public Result<ShortLinkProjectCreateRespDTO> shortLinkRemoteCreate(@RequestBody ShortLinkProjectCreateReqDTO requestParam) {
-        return shortLinkRemoteService.ShortLinkProjectCreate(requestParam);
+        return shortLinkRemoteService.shortLinkProjectCreate(requestParam);
     }
 
 }
