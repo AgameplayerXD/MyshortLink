@@ -51,6 +51,25 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     }
 
     /**
+     * 用于注册时新增短链接分组，需要手动指定用户名，无法从登录上下文中获取
+     *
+     * @param username
+     * @param groupName
+     */
+    @Override
+    public void addShotLinkGroup(String username, String groupName) {
+        String gid = RandomGenerator.generateRandom();
+        GroupDO group = GroupDO.builder()
+                .gid(gid)
+                .sortOrder(0)
+                .name(groupName)
+                .username(username)
+                .build();
+        save(group);
+    }
+
+
+    /**
      * 根据登录的用户来查询其创建的短链接分组
      *
      * @return

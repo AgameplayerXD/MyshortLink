@@ -16,6 +16,7 @@ import com.xwj.shortlink.dto.req.UserReqDTO;
 import com.xwj.shortlink.dto.resp.ActualUserRespDTO;
 import com.xwj.shortlink.dto.resp.UserLoginRespDTO;
 import com.xwj.shortlink.dto.resp.UserRespDTO;
+import com.xwj.shortlink.service.GroupService;
 import com.xwj.shortlink.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
@@ -38,6 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
 
     /**
      * 根据用户名查询用户信息，手机号码脱敏展示
@@ -102,6 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDo> implements 
             }
             //存入 Redis 中的布隆过滤器中
             userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+            groupService.addShotLinkGroup(requestParam.getUsername(), "默认分组");
         } catch (DuplicateKeyException ex) {
             throw new ClientException(UserErrorEnumsCode.USER_EXIST);
         } finally {
