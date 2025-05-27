@@ -40,7 +40,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
      */
     @Override
     public void addShotLinkGroup(String groupName) {
-        String gid = RandomGenerator.generateRandom();
+        String gid;
+        do {
+            gid = RandomGenerator.generateRandom();
+        } while (!hasGid(null, gid));
         GroupDO group = GroupDO.builder()
                 .gid(gid)
                 .sortOrder(0)
@@ -58,7 +61,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
      */
     @Override
     public void addShotLinkGroup(String username, String groupName) {
-        String gid = RandomGenerator.generateRandom();
+        String gid;
+        do {
+            gid = RandomGenerator.generateRandom();
+        } while (!hasGid(username, gid));
         GroupDO group = GroupDO.builder()
                 .gid(gid)
                 .sortOrder(0)
@@ -68,6 +74,20 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         save(group);
     }
 
+    /**
+     * 查询当前用户是否已经拥有了这一个 gid
+     *
+     * @param username
+     * @param gid
+     * @return
+     */
+    private boolean hasGid(String username, String gid) {
+        LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(GroupDO::getGid, gid);
+        queryWrapper.eq(GroupDO::getUsername, Optional.ofNullable(username).orElse(UserContext.getUsername()));
+        GroupDO hasGidFlag = baseMapper.selectOne(queryWrapper);
+        return hasGidFlag == null;
+    }
 
     /**
      * 根据登录的用户来查询其创建的短链接分组
