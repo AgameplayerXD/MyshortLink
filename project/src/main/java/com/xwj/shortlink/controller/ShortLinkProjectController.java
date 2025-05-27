@@ -56,6 +56,7 @@ public class ShortLinkProjectController {
         return Results.success(shortLinkService.countGroupLinkCount(requestParam));
     }
 
+    @PostMapping("/api/short-link/v1/update")
     public Result<Void> updateShortLink(@RequestBody ShortLinkProjectUpdateReqDTO requestParam) {
         shortLinkService.updateShortLink(requestParam);
         return Results.success();

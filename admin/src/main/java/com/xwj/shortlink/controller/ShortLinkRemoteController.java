@@ -2,9 +2,11 @@ package com.xwj.shortlink.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xwj.shortlink.common.convention.result.Result;
+import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.remote.ShortLinkRemoteService;
 import com.xwj.shortlink.remote.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkProjectPageReqDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +43,12 @@ public class ShortLinkRemoteController {
     @PostMapping("/api/short-link/admin/v1/create")
     public Result<ShortLinkProjectCreateRespDTO> shortLinkRemoteCreate(@RequestBody ShortLinkProjectCreateReqDTO requestParam) {
         return shortLinkRemoteService.shortLinkProjectCreate(requestParam);
+    }
+
+    @PostMapping("/api/short-link/admin/v1/update")
+    public Result<Void> shortLinkRemoteUpdate(@RequestBody ShortLinkRemoteUpdateReqDTO requestParam) {
+        shortLinkRemoteService.updateShortLink(requestParam);
+        return Results.success();
     }
 
 }

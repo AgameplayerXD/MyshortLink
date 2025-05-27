@@ -136,7 +136,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             updateWrapper.set(ShortLinkDO::getOriginUrl, requestParam.getOriginUrl());
             updateWrapper.set(ShortLinkDO::getDescribe, requestParam.getDescribe());
             updateWrapper.set(ShortLinkDO::getValidDateType, requestParam.getValidDateType());
-            updateWrapper.set(ShortLinkDO::getValidDate, requestParam.getValidDate());
             update(updateWrapper);
         } else {
             LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
@@ -150,7 +149,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .gid(requestParam.getGid())
                     .createdType(hasLink.getCreatedType())
                     .validDateType(requestParam.getValidDateType())
-                    .validDate(requestParam.getValidDate())
                     .describe(requestParam.getDescribe())
                     .shortUri(hasLink.getShortUri())
                     .enableStatus(hasLink.getEnableStatus())

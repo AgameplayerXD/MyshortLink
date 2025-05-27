@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.remote.dto.req.ShortLinkProjectCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkProjectPageReqDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
@@ -47,6 +48,12 @@ public interface ShortLinkRemoteService {
         });
     }
 
+    /**
+     * 查询分组下的短链接数量
+     *
+     * @param requestParam
+     * @return
+     */
     default Result<List<ShortLinkRemoteCountLinkRespDTO>> countGroupLinkCount(List<String> requestParam) {
         Map<String, Object> getParam = new HashMap<>();
         getParam.put("requestParam", requestParam);
@@ -54,4 +61,15 @@ public interface ShortLinkRemoteService {
         return JSON.parseObject(responseStr, new TypeReference<>() {
         });
     }
+
+    /**
+     * 修改短链接
+     *
+     * @param requestParam
+     * @return
+     */
+    default void updateShortLink(ShortLinkRemoteUpdateReqDTO requestParam) {
+        String responseStr = HttpUtil.post("http://localhost:8000/api/short-link/v1/update", JSON.toJSONString(requestParam));
+    }
+
 }
