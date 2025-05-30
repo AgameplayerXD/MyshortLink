@@ -223,6 +223,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String originUrl;
         if (!linkCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
             //如果布隆过滤器里没有，则说明短链接不存在
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return;
         }
         //需要跳转的网址在缓存中命中，直接跳转返回
@@ -234,6 +235,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         //防止缓存穿透
         String gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
         if (StrUtil.isNotBlank(gotoIsNull)) {
+            ((HttpServletResponse) response).sendRedirect("/page/notfound");
             return;
         }
         //缓存击穿
@@ -248,6 +250,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
             gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
             if (StrUtil.isNotBlank(gotoIsNull)) {
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             //通过fullShortUrl去路由表中查询gid
@@ -257,6 +260,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (Objects.isNull(shortLinkGotoDO)) {
                 //确实没有这个短链接,则将“null”存入Redis中，防止缓存穿透
                 stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30L, TimeUnit.SECONDS);
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             //拿到gid后，去link表里查询原始链接
@@ -268,6 +272,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             //如果shortLinkDO为空，或者短链接已经过期，则直接返回短链接不存在页面，并将“null”存入Redis
             if (Objects.isNull(shortLinkDO) || (shortLinkDO.getValidDate() != null && DateUtil.date().before(shortLinkDO.getValidDate()))) {
                 stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30L, TimeUnit.SECONDS);
+                ((HttpServletResponse) response).sendRedirect("/page/notfound");
                 return;
             }
             //数据库中存在短链接，只是key已经过期，将value存入Redis中
