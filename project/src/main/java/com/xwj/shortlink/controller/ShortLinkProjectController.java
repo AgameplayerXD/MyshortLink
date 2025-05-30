@@ -10,6 +10,8 @@ import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,18 @@ public class ShortLinkProjectController {
     @PostMapping("/api/short-link/v1/create")
     public Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkProjectCreateReqDTO requestParam) {
         return Results.success(shortLinkService.shortLinkProjectCreate(requestParam));
+    }
+
+    /**
+     * 短链接跳转接口
+     *
+     * @param shortUri
+     * @param request
+     * @param response
+     */
+    @GetMapping("/{short-uri}")
+    public void restoreUrl(@PathVariable("short-uri") String shortUri, ServletRequest request, ServletResponse response) {
+        shortLinkService.restoreUrl(shortUri, request, response);
     }
 
     /**
