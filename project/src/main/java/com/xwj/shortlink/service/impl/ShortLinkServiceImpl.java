@@ -1,7 +1,9 @@
 package com.xwj.shortlink.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -60,6 +63,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     @Override
     public ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
+        String originUrl = requestParam.getOriginUrl();
+        if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
+            originUrl = "http://" + originUrl;
+        }
         //通过原始链接来生成短链接
         //先生成 6 位的 Suffix
         String shortUri = generateSuffix(requestParam);
@@ -71,7 +78,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .domain(requestParam.getDomain())
                 .shortUri(shortUri)
                 .fullShortUrl(fullShortUrl)
-                .originUrl(requestParam.getOriginUrl())
+                .originUrl(originUrl)
                 .gid(requestParam.getGid())
                 .createdType(requestParam.getCreatedType())
                 .validDateType(requestParam.getValidDateType())
@@ -86,7 +93,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             shortLinkGotoMapper.insert(shortLinkGotoDO);
         } catch (DuplicateKeyException e) {
             LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ShortLinkDO::getOriginUrl, fullShortUrl);
+            queryWrapper.eq(ShortLinkDO::getFullShortUrl, fullShortUrl);
             ShortLinkDO hasShortLink = baseMapper.selectOne(queryWrapper);
             if (!Objects.isNull(hasShortLink)) {
                 //如果确实在数据库中查到了数据，就说明并不是布隆过滤器误判
@@ -96,8 +103,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
         linkCreateCachePenetrationBloomFilter.add(fullShortUrl);
         // 做缓存预热
-        stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY),
-                fullShortUrl,
+        stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl),
+                shortLinkDO.getOriginUrl(),
                 ShortLinkUtil.getCacheValidTime(requestParam.getValidDate()),
                 TimeUnit.MILLISECONDS);
         return BeanUtil.copyProperties(shortLinkDO, ShortLinkProjectCreateRespDTO.class);
@@ -213,25 +220,65 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     public void restoreUrl(String shortUri, ServletRequest request, ServletResponse response) {
         String domain = request.getServerName();
         String fullShortUrl = (StrBuilder.create(domain).append("/").append(shortUri)).toString();
-        //通过fullShortUrl去路由表中查询gid
-        LambdaQueryWrapper<ShortLinkGotoDO> gotoDOLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        gotoDOLambdaQueryWrapper.eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
-        ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(gotoDOLambdaQueryWrapper);
-        if (Objects.isNull(shortLinkGotoDO)) {
-            throw new ClientException("短链接不存在");
+        String originUrl;
+        if (!linkCreateCachePenetrationBloomFilter.contains(fullShortUrl)) {
+            //如果布隆过滤器里没有，则说明短链接不存在
+            return;
         }
-        //拿到gid后，去link表里查询原始链接
-        LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShortLinkDO::getFullShortUrl, fullShortUrl);
-        queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
-        queryWrapper.eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid());
-        ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
-        if (!Objects.isNull(shortLinkDO)) {
-            String originUrl = shortLinkDO.getOriginUrl();
-            if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
-                originUrl = "http://" + originUrl;
-            }
+        //需要跳转的网址在缓存中命中，直接跳转返回
+        originUrl = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl));
+        if (StrUtil.isNotBlank(originUrl)) {
             ((HttpServletResponse) response).sendRedirect(originUrl);
+            return;
+        }
+        //防止缓存穿透
+        String gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+        if (StrUtil.isNotBlank(gotoIsNull)) {
+            return;
+        }
+        //缓存击穿
+        RLock lock = redissonClient.getLock(String.format(RedisKeyConstant.LOCK_GOTO_SHORT_LINK_KEY, fullShortUrl));
+        lock.lock();
+        try {
+            //线程进入锁之后检查一下是不是其他线程已经将空缺的缓存补充
+            originUrl = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl));
+            if (StrUtil.isNotBlank(originUrl)) {
+                ((HttpServletResponse) response).sendRedirect(originUrl);
+                return;
+            }
+            gotoIsNull = stringRedisTemplate.opsForValue().get(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl));
+            if (StrUtil.isNotBlank(gotoIsNull)) {
+                return;
+            }
+            //通过fullShortUrl去路由表中查询gid
+            LambdaQueryWrapper<ShortLinkGotoDO> gotoDOLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            gotoDOLambdaQueryWrapper.eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+            ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(gotoDOLambdaQueryWrapper);
+            if (Objects.isNull(shortLinkGotoDO)) {
+                //确实没有这个短链接,则将“null”存入Redis中，防止缓存穿透
+                stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30L, TimeUnit.SECONDS);
+                return;
+            }
+            //拿到gid后，去link表里查询原始链接
+            LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ShortLinkDO::getFullShortUrl, fullShortUrl);
+            queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
+            queryWrapper.eq(ShortLinkDO::getGid, shortLinkGotoDO.getGid());
+            ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
+            //如果shortLinkDO为空，或者短链接已经过期，则直接返回短链接不存在页面，并将“null”存入Redis
+            if (Objects.isNull(shortLinkDO) || (shortLinkDO.getValidDate() != null && DateUtil.date().before(shortLinkDO.getValidDate()))) {
+                stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY, fullShortUrl), "-", 30L, TimeUnit.SECONDS);
+                return;
+            }
+            //数据库中存在短链接，只是key已经过期，将value存入Redis中
+            originUrl = shortLinkDO.getOriginUrl();
+            stringRedisTemplate.opsForValue().set(String.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl),
+                    originUrl,
+                    ShortLinkUtil.getCacheValidTime(shortLinkDO.getValidDate()),
+                    TimeUnit.MILLISECONDS);
+            ((HttpServletResponse) response).sendRedirect(originUrl);
+        } finally {
+            lock.unlock();
         }
     }
 
