@@ -38,6 +38,6 @@ public class RecycleBinController {
      */
     @GetMapping("/api/short-link/admin/v1/recycle-bin/page")
     public Result<PageResultVO<ShortLinkPageRespDTO>> pageBinShortLink(RecycleBinListReqDTO requestParam) {
-        return Results.success(recycleBinService.pageBinShortLink(requestParam));
+        return recycleBinService.pageBinShortLink(requestParam);
     }
 }

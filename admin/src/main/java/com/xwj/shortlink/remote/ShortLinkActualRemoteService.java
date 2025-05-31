@@ -75,7 +75,7 @@ public interface ShortLinkActualRemoteService {
      * @return
      */
     @GetMapping("/api/short-link/v1/recycle-bin/page")
-    PageResultVO<ShortLinkPageRespDTO> listRecycleBin(@RequestParam("gidList") List<String> gidList,
+    Result<PageResultVO<ShortLinkPageRespDTO>> listRecycleBin(@RequestParam("gidList") List<String> gidList,
                                                       @RequestParam("current") Long current,
                                                       @RequestParam("size") Long size);
 }

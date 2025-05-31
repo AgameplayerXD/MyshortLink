@@ -26,7 +26,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
     private final ShortLinkActualRemoteService shortLinkActualRemoteService;
 
     @Override
-    public PageResultVO<ShortLinkPageRespDTO> pageBinShortLink(RecycleBinListReqDTO requestParam) {
+    public Result<PageResultVO<ShortLinkPageRespDTO>> pageBinShortLink(RecycleBinListReqDTO requestParam) {
         //通过当前登录用户去查询用户创建的所有gid
         LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(GroupDO::getUsername, UserContext.getUsername());
