@@ -3,7 +3,7 @@ package com.xwj.shortlink.controller;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
-import com.xwj.shortlink.service.RecycleService;
+import com.xwj.shortlink.remote.ShortLinkActualRemoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,14 +12,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class RecycleBinController {
-    private final RecycleService recycleService;
+    private final ShortLinkActualRemoteService shortLinkActualRemoteService;
 
     /**
-     * 将短链接保存至回收站
+     * 后管调用中台来将短链接移至回收站
+     *
+     * @param requestParam 包含gid和full short URL
      */
-    @PostMapping("/api/short-link/v1/recycle-bin/save")
+    @PostMapping("/api/short-link/admin/v1/recycle-bin/save")
     public Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam) {
-        recycleService.saveRecycleBin(requestParam);
+        shortLinkActualRemoteService.saveRecycleBin(requestParam);
         return Results.success();
     }
 }

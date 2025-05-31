@@ -2,6 +2,7 @@ package com.xwj.shortlink.remote;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
+import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkCreateRespDTO;
@@ -55,4 +56,13 @@ public interface ShortLinkActualRemoteService {
      */
     @PostMapping("/api/short-link/v1/update")
     void updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam);
+
+    /**
+     * 将短链接移至回收站
+     *
+     * @param requestParam
+     * @return
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/save")
+    Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam);
 }
