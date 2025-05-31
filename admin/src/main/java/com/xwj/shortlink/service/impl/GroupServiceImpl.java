@@ -12,10 +12,11 @@ import com.xwj.shortlink.dao.mapper.GroupMapper;
 import com.xwj.shortlink.dto.req.GroupModifyReqDTO;
 import com.xwj.shortlink.dto.req.GroupSortReqDTO;
 import com.xwj.shortlink.dto.resp.GroupRespDTO;
-import com.xwj.shortlink.remote.ShortLinkRemoteService;
+import com.xwj.shortlink.remote.ShortLinkActualRemoteService;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
 import com.xwj.shortlink.service.GroupService;
 import com.xwj.shortlink.util.RandomGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +29,11 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
 
-    ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService() {
-    };
 
+    private final ShortLinkActualRemoteService shortLinkActualRemoteService;
     /**
      * 添加短链接分组，使用当前登录用户来添加
      *
@@ -96,7 +97,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .map(GroupDO::getGid)
                 .toList();
         //调用中台的查询 gid 下短链接数量的方法，该方法返回 gid 和对应的短链接数量
-        Result<List<ShortLinkRemoteCountLinkRespDTO>> listResult = shortLinkRemoteService.countGroupLinkCount(gidList);
+        Result<List<ShortLinkRemoteCountLinkRespDTO>> listResult = shortLinkActualRemoteService.countGroupLinkCount(gidList);
         List<ShortLinkRemoteCountLinkRespDTO> gidAndCountList = listResult.getData();
         //填充 GroupRespDTO 响应对象中空缺的短链接数量字段
         List<GroupRespDTO> groupRespDTOS = BeanUtil.copyToList(groupDOS, GroupRespDTO.class);
@@ -119,9 +120,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         LambdaUpdateWrapper<GroupDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(GroupDO::getUsername, UserContext.getUsername());
         updateWrapper.eq(GroupDO::getGid, requestParam.getGid());
-        updateWrapper.eq(GroupDO::getDelFlag, 0);
-        updateWrapper.set(GroupDO::getName, requestParam.getName());
-        update(updateWrapper);
+        GroupDO updateGroupDO = GroupDO.builder()
+                .name(requestParam.getName())
+                .build();
+        baseMapper.update(updateGroupDO, updateWrapper);
     }
 
     /**
