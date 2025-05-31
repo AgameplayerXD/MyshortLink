@@ -54,8 +54,8 @@ public class ShortLinkProjectController {
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    public Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(String gid, Long current, Long pageSize) {
-        return Results.success(shortLinkService.shortLinkProjectPage(gid, current, pageSize));
+    public Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size) {
+        return Results.success(shortLinkService.shortLinkProjectPage(gid, current, size));
     }
 
     /**

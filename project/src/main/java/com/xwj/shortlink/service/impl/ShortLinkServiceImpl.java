@@ -116,7 +116,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long pageSize) {
+    public Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size) {
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShortLinkDO::getGid, gid);
         queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);

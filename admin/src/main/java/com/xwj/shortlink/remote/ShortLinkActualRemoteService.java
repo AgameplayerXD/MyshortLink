@@ -1,6 +1,6 @@
 package com.xwj.shortlink.remote;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
@@ -25,11 +25,10 @@ public interface ShortLinkActualRemoteService {
      *
      * @param gid
      * @param current
-     * @param pageSize
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    Result<IPage<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("pageSize") Long pageSize);
+    Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size);
 
     /**
      * 创建短链接

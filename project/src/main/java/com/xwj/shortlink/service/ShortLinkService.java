@@ -29,7 +29,7 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * 分页查询短链接接口
      * @return
      */
-    Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long pageSize);
+    Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size);
 
     /**
      * 查询分组下的短链接数量接口
