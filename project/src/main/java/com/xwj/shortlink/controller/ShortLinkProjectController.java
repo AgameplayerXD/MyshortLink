@@ -5,9 +5,9 @@ import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCountLinkRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCreateRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -32,7 +32,7 @@ public class ShortLinkProjectController {
      * @return
      */
     @PostMapping("/api/short-link/v1/create")
-    public Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkCreateReqDTO requestParam) {
+    public Result<ShortLinkCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkCreateReqDTO requestParam) {
         return Results.success(shortLinkService.shortLinkProjectCreate(requestParam));
     }
 
@@ -54,7 +54,7 @@ public class ShortLinkProjectController {
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    public Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size) {
+    public Result<Page<ShortLinkPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size) {
         return Results.success(shortLinkService.shortLinkProjectPage(gid, current, size));
     }
 
@@ -65,7 +65,7 @@ public class ShortLinkProjectController {
      * @return
      */
     @GetMapping("/api/short-link/v1/count")
-    public Result<List<ShortLinkProjectCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam) {
+    public Result<List<ShortLinkCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam) {
         return Results.success(shortLinkService.countGroupLinkCount(requestParam));
     }
 

@@ -19,9 +19,9 @@ import com.xwj.shortlink.dao.mapper.ShortLinkGotoMapper;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCountLinkRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCreateRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
 import com.xwj.shortlink.util.HashUtil;
 import com.xwj.shortlink.util.PageUtil;
@@ -62,7 +62,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam) {
+    public ShortLinkCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam) {
         String originUrl = requestParam.getOriginUrl();
         if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
             originUrl = "http://" + originUrl;
@@ -108,7 +108,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 shortLinkDO.getOriginUrl(),
                 ShortLinkUtil.getCacheValidTime(requestParam.getValidDate()),
                 TimeUnit.MILLISECONDS);
-        return BeanUtil.copyProperties(shortLinkDO, ShortLinkProjectCreateRespDTO.class);
+        return BeanUtil.copyProperties(shortLinkDO, ShortLinkCreateRespDTO.class);
     }
 
     /**
@@ -117,13 +117,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size) {
+    public Page<ShortLinkPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size) {
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShortLinkDO::getGid, gid);
         queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
         Page<ShortLinkDO> page = new Page<>();
         page(page, queryWrapper);
-        return PageUtil.convert(page, source -> BeanUtil.copyProperties(source, ShortLinkProjectPageRespDTO.class));
+        return PageUtil.convert(page, source -> BeanUtil.copyProperties(source, ShortLinkPageRespDTO.class));
     }
 
     /**
@@ -133,14 +133,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return ShortLinkProjectCountLinkRespDTO 列表其中包含了 gid 和当前分组下的短链接数量
      */
     @Override
-    public List<ShortLinkProjectCountLinkRespDTO> countGroupLinkCount(List<String> requestParam) {
+    public List<ShortLinkCountLinkRespDTO> countGroupLinkCount(List<String> requestParam) {
         QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("gid as gid ,count(*) as ShortLinkCount")
                 .in("gid", requestParam)
                 .eq("enable_status", 0)
                 .groupBy("gid");
         List<Map<String, Object>> maps = baseMapper.selectMaps(queryWrapper);
-        return BeanUtil.copyToList(maps, ShortLinkProjectCountLinkRespDTO.class);
+        return BeanUtil.copyToList(maps, ShortLinkCountLinkRespDTO.class);
     }
 
 

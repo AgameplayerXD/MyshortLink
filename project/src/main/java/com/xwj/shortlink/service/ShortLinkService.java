@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
-import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCountLinkRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkCreateRespDTO;
+import com.xwj.shortlink.dto.resp.ShortLinkPageRespDTO;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 
@@ -23,20 +23,20 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @param requestParam
      * @return
      */
-    ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam);
+    ShortLinkCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam);
 
     /**
      * 分页查询短链接接口
      * @return
      */
-    Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size);
+    Page<ShortLinkPageRespDTO> shortLinkProjectPage(String gid, Long current, Long size);
 
     /**
      * 查询分组下的短链接数量接口
      * @param requestParam
      * @return
      */
-    List<ShortLinkProjectCountLinkRespDTO> countGroupLinkCount(List<String> requestParam);
+    List<ShortLinkCountLinkRespDTO> countGroupLinkCount(List<String> requestParam);
 
     /**
      * 修改短链接

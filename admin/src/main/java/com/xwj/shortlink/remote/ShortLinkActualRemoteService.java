@@ -5,9 +5,10 @@ import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.xwj.shortlink.remote.dto.resp.PageResultVO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkCountLinkRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkCreateRespDTO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkPageRespDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkCountLinkRespDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,9 @@ public interface ShortLinkActualRemoteService {
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    Result<Page<ShortLinkPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size);
+    Result<Page<ShortLinkPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid,
+                                                            @RequestParam("current") Long current,
+                                                            @RequestParam("size") Long size);
 
     /**
      * 创建短链接
@@ -65,4 +68,14 @@ public interface ShortLinkActualRemoteService {
      */
     @PostMapping("/api/short-link/v1/recycle-bin/save")
     Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam);
+
+    /**
+     * 分页查询用户的回收站列表
+     *
+     * @return
+     */
+    @GetMapping("/api/short-link/v1/recycle-bin/page")
+    PageResultVO<ShortLinkPageRespDTO> listRecycleBin(@RequestParam("gidList") List<String> gidList,
+                                                      @RequestParam("current") Long current,
+                                                      @RequestParam("size") Long size);
 }
