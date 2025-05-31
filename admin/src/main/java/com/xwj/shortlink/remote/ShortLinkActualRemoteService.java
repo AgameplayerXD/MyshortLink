@@ -1,0 +1,59 @@
+package com.xwj.shortlink.remote;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.xwj.shortlink.common.convention.result.Result;
+import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteCreateReqDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+
+/**
+ * Feign客户端调用中台服务
+ */
+@FeignClient("short-link-project")
+public interface ShortLinkActualRemoteService {
+    /**
+     * 分页查询短链接
+     *
+     * @param gid
+     * @param current
+     * @param pageSize
+     * @return
+     */
+    @GetMapping("/api/short-link/v1/page")
+    Result<IPage<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("pageSize") Long pageSize);
+
+    /**
+     * 创建短链接
+     *
+     * @param requestParam
+     * @return
+     */
+    @PostMapping("/api/short-link/v1/create")
+    Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkRemoteCreateReqDTO requestParam);
+
+    /**
+     * 查询分组下短链接的数量
+     *
+     * @param requestParam
+     * @return
+     */
+    @GetMapping("/api/short-link/v1/count")
+    Result<List<ShortLinkRemoteCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam);
+
+    /**
+     * 修改短链接
+     *
+     * @param requestParam
+     */
+    @PostMapping("/api/short-link/v1/update")
+    void updateShortLink(@RequestBody ShortLinkRemoteUpdateReqDTO requestParam);
+}

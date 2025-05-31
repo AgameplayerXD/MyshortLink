@@ -1,10 +1,9 @@
 package com.xwj.shortlink.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
@@ -55,8 +54,8 @@ public class ShortLinkProjectController {
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    public Result<IPage<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
-        return Results.success(shortLinkService.shortLinkProjectPage(requestParam));
+    public Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(String gid, Long current, Long pageSize) {
+        return Results.success(shortLinkService.shortLinkProjectPage(gid, current, pageSize));
     }
 
     /**

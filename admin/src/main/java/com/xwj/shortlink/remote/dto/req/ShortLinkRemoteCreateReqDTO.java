@@ -6,8 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ShortLinkProjectCreateReqDTO {
-
+public class ShortLinkRemoteCreateReqDTO {
     //域名
     private String domain;
 

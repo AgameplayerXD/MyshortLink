@@ -1,10 +1,9 @@
 package com.xwj.shortlink.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
@@ -28,10 +27,9 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
 
     /**
      * 分页查询短链接接口
-     * @param requestParam
      * @return
      */
-    IPage<ShortLinkProjectPageRespDTO> shortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam);
+    Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long pageSize);
 
     /**
      * 查询分组下的短链接数量接口

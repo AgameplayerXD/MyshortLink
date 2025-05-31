@@ -7,7 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwj.shortlink.common.constant.RedisKeyConstant;
 import com.xwj.shortlink.common.convention.exception.ClientException;
@@ -18,13 +18,13 @@ import com.xwj.shortlink.dao.entity.ShortLinkGotoDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkGotoMapper;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectPageReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
 import com.xwj.shortlink.service.ShortLinkService;
 import com.xwj.shortlink.util.HashUtil;
+import com.xwj.shortlink.util.PageUtil;
 import com.xwj.shortlink.util.ShortLinkUtil;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -116,14 +116,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public IPage<ShortLinkProjectPageRespDTO> shortLinkProjectPage(ShortLinkProjectPageReqDTO requestParam) {
+    public Page<ShortLinkProjectPageRespDTO> shortLinkProjectPage(String gid, Long current, Long pageSize) {
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
+        queryWrapper.eq(ShortLinkDO::getGid, gid);
         queryWrapper.eq(ShortLinkDO::getEnableStatus, 0);
-        queryWrapper.eq(ShortLinkDO::getDelFlag, 0);
-        ShortLinkProjectPageReqDTO shortLinkProjectPageReqDTO = baseMapper.selectPage(requestParam, queryWrapper);
-        System.out.println(shortLinkProjectPageReqDTO.getRecords());
-        return shortLinkProjectPageReqDTO.convert(shortLinkDO -> BeanUtil.toBean(shortLinkDO, ShortLinkProjectPageRespDTO.class));
+        Page<ShortLinkDO> page = new Page<>();
+        page(page, queryWrapper);
+        return PageUtil.convert(page, source -> BeanUtil.copyProperties(source, ShortLinkProjectPageRespDTO.class));
     }
 
     /**
@@ -148,6 +147,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateShortLink(ShortLinkProjectUpdateReqDTO requestParam) {
+        //TODO originUrl后续要改为不需要手动添加http
+        String originUrl = requestParam.getOriginUrl();
+        if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
+            originUrl = "http://" + originUrl;
+        }
         //先查询所要修改的短链接是否存在
         LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShortLinkDO::getGid, requestParam.getOriginGid());
@@ -161,15 +165,21 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         if (Objects.equals(hasLink.getGid(), requestParam.getGid())) {
             //gid 相等，可以直接修改内容
             LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
+            ShortLinkDO updateShortLinkDO = ShortLinkDO.builder()
+                    .originUrl(originUrl)
+                    .describe(requestParam.getDescribe())
+                    .validDateType(requestParam.getValidDateType())
+                    .build();
             updateWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
             updateWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
             updateWrapper.eq(ShortLinkDO::getEnableStatus, 0);
-            updateWrapper.set(Objects.equals(requestParam.getValidDateType(), VailDateTypeEnum.PERMANENT.getType()), ShortLinkDO::getValidDate, null);
-            updateWrapper.set(ShortLinkDO::getGid, requestParam.getGid());
-            updateWrapper.set(ShortLinkDO::getOriginUrl, requestParam.getOriginUrl());
-            updateWrapper.set(ShortLinkDO::getDescribe, requestParam.getDescribe());
-            updateWrapper.set(ShortLinkDO::getValidDateType, requestParam.getValidDateType());
-            update(updateWrapper);
+            updateWrapper.set(
+                    ShortLinkDO::getValidDate,
+                    Objects.equals(requestParam.getValidDateType(), VailDateTypeEnum.PERMANENT.getType())
+                            ? null
+                            : requestParam.getValidDate()
+            );
+            update(updateShortLinkDO, updateWrapper);
         } else {
             //删除link表里的数据
             LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
@@ -179,16 +189,17 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             baseMapper.delete(updateWrapper);
             //删除路由表里的数据
             LambdaQueryWrapper<ShortLinkGotoDO> gotoDOLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            gotoDOLambdaQueryWrapper.eq(ShortLinkGotoDO::getId, hasLink.getGid());
+            gotoDOLambdaQueryWrapper.eq(ShortLinkGotoDO::getGid, hasLink.getGid());
             gotoDOLambdaQueryWrapper.eq(ShortLinkGotoDO::getFullShortUrl, hasLink.getFullShortUrl());
             shortLinkGotoMapper.delete(gotoDOLambdaQueryWrapper);
             //新增link表里的数据
             ShortLinkDO shortLinkDO = ShortLinkDO.builder()
                     .domain(hasLink.getDomain())
-                    .originUrl(requestParam.getOriginUrl())
+                    .originUrl(originUrl)
                     .gid(requestParam.getGid())
                     .createdType(hasLink.getCreatedType())
                     .validDateType(requestParam.getValidDateType())
+                    .validDate(requestParam.getValidDate())
                     .describe(requestParam.getDescribe())
                     .shortUri(hasLink.getShortUri())
                     .enableStatus(hasLink.getEnableStatus())

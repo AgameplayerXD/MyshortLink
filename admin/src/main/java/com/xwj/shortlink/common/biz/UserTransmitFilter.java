@@ -51,6 +51,10 @@ public class UserTransmitFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);  // 放行不处理
             return;
         }
+        if (uri.startsWith("/api/short-link/admin/v1/user")) {
+            filterChain.doFilter(servletRequest, servletResponse);  // 放行不处理
+            return;
+        }
         if (!Objects.isNull(token)) {
             Object userInfoJsonStr = stringRedisTemplate.opsForHash().get("login:" + username, token);
             if (Objects.isNull(userInfoJsonStr)) {
