@@ -13,7 +13,7 @@ import com.xwj.shortlink.dto.req.GroupModifyReqDTO;
 import com.xwj.shortlink.dto.req.GroupSortReqDTO;
 import com.xwj.shortlink.dto.resp.GroupRespDTO;
 import com.xwj.shortlink.remote.ShortLinkActualRemoteService;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkCountLinkRespDTO;
 import com.xwj.shortlink.service.GroupService;
 import com.xwj.shortlink.util.RandomGenerator;
 import lombok.RequiredArgsConstructor;
@@ -97,12 +97,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .map(GroupDO::getGid)
                 .toList();
         //调用中台的查询 gid 下短链接数量的方法，该方法返回 gid 和对应的短链接数量
-        Result<List<ShortLinkRemoteCountLinkRespDTO>> listResult = shortLinkActualRemoteService.countGroupLinkCount(gidList);
-        List<ShortLinkRemoteCountLinkRespDTO> gidAndCountList = listResult.getData();
+        Result<List<ShortLinkCountLinkRespDTO>> listResult = shortLinkActualRemoteService.countGroupLinkCount(gidList);
+        List<ShortLinkCountLinkRespDTO> gidAndCountList = listResult.getData();
         //填充 GroupRespDTO 响应对象中空缺的短链接数量字段
         List<GroupRespDTO> groupRespDTOS = BeanUtil.copyToList(groupDOS, GroupRespDTO.class);
         groupRespDTOS.forEach(each -> {
-            Optional<ShortLinkRemoteCountLinkRespDTO> first = listResult.getData().stream()
+            Optional<ShortLinkCountLinkRespDTO> first = listResult.getData().stream()
                     .filter(item -> Objects.equals(each.getGid(), item.getGid()))
                     .findFirst();
             first.ifPresent(item -> each.setShortLinkCount(item.getShortLinkCount()));

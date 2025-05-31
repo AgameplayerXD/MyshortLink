@@ -1,4 +1,4 @@
-package com.xwj.shortlink.remote.dto.req;
+package com.xwj.shortlink.dto.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -6,7 +6,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ShortLinkRemoteCreateReqDTO {
+public class ShortLinkCreateReqDTO {
+
     //域名
     private String domain;
 

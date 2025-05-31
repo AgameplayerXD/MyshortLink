@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.remote.ShortLinkActualRemoteService;
-import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteCreateReqDTO;
-import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkCreateReqDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkCreateRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkPageRespDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ public class ShortLinkRemoteController {
      */
 
     @GetMapping("/api/short-link/admin/v1/page")
-    public Result<Page<ShortLinkProjectPageRespDTO>> shortLinkRemotePage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size) {
+    public Result<Page<ShortLinkPageRespDTO>> shortLinkRemotePage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size) {
         return shortLinkActualRemoteService.shortLinkProjectPage(gid, current, size);
     }
 
@@ -37,7 +37,7 @@ public class ShortLinkRemoteController {
      * @return
      */
     @PostMapping("/api/short-link/admin/v1/create")
-    public Result<ShortLinkProjectCreateRespDTO> shortLinkRemoteCreate(@RequestBody ShortLinkRemoteCreateReqDTO requestParam) {
+    public Result<ShortLinkCreateRespDTO> shortLinkRemoteCreate(@RequestBody ShortLinkCreateReqDTO requestParam) {
         return shortLinkActualRemoteService.shortLinkProjectCreate(requestParam);
     }
 
@@ -48,7 +48,7 @@ public class ShortLinkRemoteController {
      * @return
      */
     @PostMapping("/api/short-link/admin/v1/update")
-    public Result<Void> shortLinkRemoteUpdate(@RequestBody ShortLinkRemoteUpdateReqDTO requestParam) {
+    public Result<Void> shortLinkRemoteUpdate(@RequestBody ShortLinkUpdateReqDTO requestParam) {
         shortLinkActualRemoteService.updateShortLink(requestParam);
         return Results.success();
     }

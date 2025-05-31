@@ -3,8 +3,8 @@ package com.xwj.shortlink.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.common.convention.result.Results;
-import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
@@ -32,7 +32,7 @@ public class ShortLinkProjectController {
      * @return
      */
     @PostMapping("/api/short-link/v1/create")
-    public Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkProjectCreateReqDTO requestParam) {
+    public Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkCreateReqDTO requestParam) {
         return Results.success(shortLinkService.shortLinkProjectCreate(requestParam));
     }
 
@@ -70,7 +70,7 @@ public class ShortLinkProjectController {
     }
 
     @PostMapping("/api/short-link/v1/update")
-    public Result<Void> updateShortLink(@RequestBody ShortLinkProjectUpdateReqDTO requestParam) {
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam) {
         shortLinkService.updateShortLink(requestParam);
         return Results.success();
     }

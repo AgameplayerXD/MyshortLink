@@ -3,8 +3,8 @@ package com.xwj.shortlink.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
@@ -23,7 +23,7 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @param requestParam
      * @return
      */
-    ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam);
+    ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam);
 
     /**
      * 分页查询短链接接口
@@ -43,7 +43,7 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      *
      * @param requestParam
      */
-    void updateShortLink(ShortLinkProjectUpdateReqDTO requestParam);
+    void updateShortLink(ShortLinkUpdateReqDTO requestParam);
 
     /**
      * 短链接跳转接口

@@ -17,8 +17,8 @@ import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dao.entity.ShortLinkGotoDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkGotoMapper;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
-import com.xwj.shortlink.dto.req.ShortLinkProjectCreateReqDTO;
-import com.xwj.shortlink.dto.req.ShortLinkProjectUpdateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
+import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCountLinkRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectCreateRespDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkProjectPageRespDTO;
@@ -62,7 +62,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @return
      */
     @Override
-    public ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkProjectCreateReqDTO requestParam) {
+    public ShortLinkProjectCreateRespDTO shortLinkProjectCreate(ShortLinkCreateReqDTO requestParam) {
         String originUrl = requestParam.getOriginUrl();
         if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
             originUrl = "http://" + originUrl;
@@ -147,7 +147,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     //TODO 后期需要优化
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateShortLink(ShortLinkProjectUpdateReqDTO requestParam) {
+    public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
         //TODO originUrl后续要改为不需要手动添加http
         String originUrl = requestParam.getOriginUrl();
         if (!originUrl.startsWith("http://") && !originUrl.startsWith("https://")) {
@@ -305,7 +305,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param requestParam
      * @return
      */
-    private String generateSuffix(ShortLinkProjectCreateReqDTO requestParam) {
+    private String generateSuffix(ShortLinkCreateReqDTO requestParam) {
         //检查短链接是否冲突
         int generateTimes = 0;
         String shortUri;

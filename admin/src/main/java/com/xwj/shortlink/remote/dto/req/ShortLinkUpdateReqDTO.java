@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ShortLinkRemoteUpdateReqDTO {
+public class ShortLinkUpdateReqDTO {
 
     /**
      * 原始链接

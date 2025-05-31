@@ -2,11 +2,11 @@ package com.xwj.shortlink.remote;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
-import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteCreateReqDTO;
-import com.xwj.shortlink.remote.dto.req.ShortLinkRemoteUpdateReqDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectCreateRespDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkProjectPageRespDTO;
-import com.xwj.shortlink.remote.dto.resp.ShortLinkRemoteCountLinkRespDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkCreateReqDTO;
+import com.xwj.shortlink.remote.dto.req.ShortLinkUpdateReqDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkCreateRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkPageRespDTO;
+import com.xwj.shortlink.remote.dto.resp.ShortLinkCountLinkRespDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +28,7 @@ public interface ShortLinkActualRemoteService {
      * @return
      */
     @GetMapping("/api/short-link/v1/page")
-    Result<Page<ShortLinkProjectPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size);
+    Result<Page<ShortLinkPageRespDTO>> shortLinkProjectPage(@RequestParam("gid") String gid, @RequestParam("current") Long current, @RequestParam("size") Long size);
 
     /**
      * 创建短链接
@@ -37,7 +37,7 @@ public interface ShortLinkActualRemoteService {
      * @return
      */
     @PostMapping("/api/short-link/v1/create")
-    Result<ShortLinkProjectCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkRemoteCreateReqDTO requestParam);
+    Result<ShortLinkCreateRespDTO> shortLinkProjectCreate(@RequestBody ShortLinkCreateReqDTO requestParam);
 
     /**
      * 查询分组下短链接的数量
@@ -46,7 +46,7 @@ public interface ShortLinkActualRemoteService {
      * @return
      */
     @GetMapping("/api/short-link/v1/count")
-    Result<List<ShortLinkRemoteCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam);
+    Result<List<ShortLinkCountLinkRespDTO>> countGroupLinkCount(@RequestParam("requestParam") List<String> requestParam);
 
     /**
      * 修改短链接
@@ -54,5 +54,5 @@ public interface ShortLinkActualRemoteService {
      * @param requestParam
      */
     @PostMapping("/api/short-link/v1/update")
-    void updateShortLink(@RequestBody ShortLinkRemoteUpdateReqDTO requestParam);
+    void updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam);
 }
