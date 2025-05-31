@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ShortLinkProjectCreateRespDTO {
+public class ShortLinkCreateRespDTO {
     /**
      * 分组信息
      */

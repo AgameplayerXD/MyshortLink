@@ -6,7 +6,7 @@ import lombok.Data;
  * 查询当前分组下有多少短链接的响应实体
  */
 @Data
-public class ShortLinkProjectCountLinkRespDTO {
+public class ShortLinkCountLinkRespDTO {
     /**
      * 分组 id
      */
