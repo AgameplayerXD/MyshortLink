@@ -63,15 +63,21 @@ public class UserController {
 
     /**
      * 检查用户是否登录和token 是否有效
-     * @return
      */
     @GetMapping("/api/short-link/admin/v1/user/check-login")
     public Result<Boolean> checkLogin(@RequestParam("username") String username,@RequestParam("token") String token){
         return Results.success(userService.checkLogin(username,token));
     }
 
-    @DeleteMapping("/api/short-link/admin/v1/user/check-login")
-    public Result<Void> logout(@RequestParam("username") String username,@RequestParam("token") String token){
+    /**
+     * 退出登录
+     *
+     * @param username
+     * @param token
+     * @return
+     */
+    @DeleteMapping("/api/short-link/admin/v1/user/logout")
+    public Result<Void> logout(@RequestHeader("username") String username, @RequestHeader("token") String token) {
         userService.logout(username,token);
         return Results.success();
     }
