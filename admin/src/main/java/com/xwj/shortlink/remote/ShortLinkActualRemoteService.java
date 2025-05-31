@@ -3,6 +3,8 @@ package com.xwj.shortlink.remote;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xwj.shortlink.common.convention.result.Result;
 import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
+import com.xwj.shortlink.remote.dto.req.RecycleBinRecoverReqDTO;
+import com.xwj.shortlink.remote.dto.req.RecycleBinRemoveReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.remote.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.remote.dto.resp.PageResultVO;
@@ -76,6 +78,18 @@ public interface ShortLinkActualRemoteService {
      */
     @GetMapping("/api/short-link/v1/recycle-bin/page")
     Result<PageResultVO<ShortLinkPageRespDTO>> listRecycleBin(@RequestParam("gidList") List<String> gidList,
-                                                      @RequestParam("current") Long current,
-                                                      @RequestParam("size") Long size);
+                                                              @RequestParam("current") Long current,
+                                                              @RequestParam("size") Long size);
+
+    /**
+     * 恢复短链接
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/recover")
+    Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam);
+
+    /**
+     * 移除短链接
+     */
+    @PostMapping("/api/short-link/v1/recycle-bin/remove")
+    Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam);
 }

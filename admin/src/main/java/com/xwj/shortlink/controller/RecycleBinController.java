@@ -5,6 +5,8 @@ import com.xwj.shortlink.common.convention.result.Results;
 import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
 import com.xwj.shortlink.remote.ShortLinkActualRemoteService;
 import com.xwj.shortlink.remote.dto.req.RecycleBinListReqDTO;
+import com.xwj.shortlink.remote.dto.req.RecycleBinRecoverReqDTO;
+import com.xwj.shortlink.remote.dto.req.RecycleBinRemoveReqDTO;
 import com.xwj.shortlink.remote.dto.resp.PageResultVO;
 import com.xwj.shortlink.remote.dto.resp.ShortLinkPageRespDTO;
 import com.xwj.shortlink.service.RecycleBinService;
@@ -39,5 +41,23 @@ public class RecycleBinController {
     @GetMapping("/api/short-link/admin/v1/recycle-bin/page")
     public Result<PageResultVO<ShortLinkPageRespDTO>> pageBinShortLink(RecycleBinListReqDTO requestParam) {
         return recycleBinService.pageBinShortLink(requestParam);
+    }
+
+    /**
+     * 恢复短链接
+     */
+    @PostMapping("/api/short-link/admin/v1/recycle-bin/recover")
+    public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
+        shortLinkActualRemoteService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 移除短链接
+     */
+    @PostMapping("/api/short-link/admin/v1/recycle-bin/remove")
+    public Result<Void> removeRecycleBin(@RequestBody RecycleBinRemoveReqDTO requestParam) {
+        shortLinkActualRemoteService.removeRecycleBin(requestParam);
+        return Results.success();
     }
 }

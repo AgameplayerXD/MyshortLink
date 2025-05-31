@@ -9,6 +9,8 @@ import com.xwj.shortlink.common.constant.RedisKeyConstant;
 import com.xwj.shortlink.dao.entity.ShortLinkDO;
 import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
 import com.xwj.shortlink.dto.req.RecycleBinListReqDTO;
+import com.xwj.shortlink.dto.req.RecycleBinRecoverReqDTO;
+import com.xwj.shortlink.dto.req.RecycleBinRemoveReqDTO;
 import com.xwj.shortlink.dto.req.RecycleBinSaveReqDTO;
 import com.xwj.shortlink.dto.resp.PageResultVO;
 import com.xwj.shortlink.dto.resp.ShortLinkPageRespDTO;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import static com.xwj.shortlink.common.constant.RedisKeyConstant.GOTO_IS_NULL_SHORT_LINK_KEY;
 
 @Service
 @Slf4j
@@ -62,5 +66,37 @@ public class RecycleServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO
         pageRespDTOPageResultVO.setSize(requestParam.getSize());
         pageRespDTOPageResultVO.setRecords(results.getRecords());
         return pageRespDTOPageResultVO;
+    }
+
+    /**
+     * 从回收站恢复短链接
+     *
+     * @param requestParam 包含gid和full short URL
+     */
+    @Override
+    public void recoverRecycleBin(RecycleBinRecoverReqDTO requestParam) {
+        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(ShortLinkDO::getEnableStatus, 1);
+        updateWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
+        updateWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
+        ShortLinkDO recoverLink = ShortLinkDO.builder()
+                .enableStatus(0)
+                .build();
+        baseMapper.update(recoverLink, updateWrapper);
+        stringRedisTemplate.delete(String.format(GOTO_IS_NULL_SHORT_LINK_KEY, requestParam.getFullShortUrl()));
+    }
+
+    /**
+     * 从回收站彻底删除短链接
+     *
+     * @param requestParam 包含gid和full short URL
+     */
+    @Override
+    public void removeRecycleBin(RecycleBinRemoveReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl());
+        queryWrapper.eq(ShortLinkDO::getGid, requestParam.getGid());
+        queryWrapper.eq(ShortLinkDO::getEnableStatus, 1);
+        baseMapper.delete(queryWrapper);
     }
 }
