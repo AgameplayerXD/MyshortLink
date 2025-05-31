@@ -79,6 +79,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .shortUri(shortUri)
                 .fullShortUrl(fullShortUrl)
                 .originUrl(originUrl)
+                .enableStatus(requestParam.getEnableStatus())
                 .gid(requestParam.getGid())
                 .createdType(requestParam.getCreatedType())
                 .validDateType(requestParam.getValidDateType())
