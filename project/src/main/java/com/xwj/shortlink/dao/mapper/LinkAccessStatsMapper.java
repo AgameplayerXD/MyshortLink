@@ -2,7 +2,10 @@ package com.xwj.shortlink.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.xwj.shortlink.dao.entity.LinkAccessStatsDO;
+import com.xwj.shortlink.dto.req.ShortLinkStatsReqDTO;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 
 /**
@@ -19,5 +22,10 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
      * @param linkAccessStats
      */
     void shortLinkStats(@Param("linkAccessStats") LinkAccessStatsDO linkAccessStats);
+
+    /**
+     * 根据短链接获取指定日期内的基础监控数据
+     */
+    List<LinkAccessStatsDO> listStatsByShortLink(@Param("Param") ShortLinkStatsReqDTO requestParam);
 }
 
