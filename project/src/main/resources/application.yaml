@@ -29,4 +29,7 @@ mybatis-plus:
             logic-delete-field: delFlag       # 实体类中逻辑删除字段名
             logic-delete-value: 1             # 删除时的值
             logic-not-delete-value: 0         # 未删除的值
-
+short-link:
+    stats:
+        local:
+            amap-key: f122d74f05d2b7ab2563d7e1e78a21f2 # 高德地图IP定位KEY
