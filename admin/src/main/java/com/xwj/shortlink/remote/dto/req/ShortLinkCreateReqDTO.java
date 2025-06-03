@@ -1,6 +1,5 @@
 package com.xwj.shortlink.remote.dto.req;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -23,7 +22,6 @@ public class ShortLinkCreateReqDTO {
     //有效期类型 0：永久有效 1：自定义
     private Integer validDateType;
     //有效期
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date validDate;
     //描述
     private String describe;

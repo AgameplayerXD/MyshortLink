@@ -3,46 +3,14 @@
   <component name="CoolRequestSetting">
     <option name="serializePaths">
       <list>
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/a9bf08c300114f9eb9051533490f509f" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/eabbb1cd9e85450497f1aa4f5894ad0b" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/7141c035202c465d8a2a07ada8cb43cc" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/e287b88d58ac4f30bf845e553990725f" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/54e9615ba7ab4a50940196b68dca5124" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/6eb64993972241d7b1f50ad5361e57a4" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/3290639fac344941be67a5be59fa8593" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/366497a618c446c1a80bde78e00eee59" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/9c6ee12c2ed643719bcb6f5a6c870c6c" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/2bf893dfe75c42c99bf52d639d1d7e60" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/3808decac3064e44a359340ca66f8c93" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/e241b4395ba143c09eb586b88c76f988" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/2821ed194bbb4a2e9d2d984daaad905a" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/a9d323f0ea61468ca9298fa9245bea4e" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/b1693cdea4dd4b9da15d1003d5ef1b9a" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/c262b177f2544bc5b588b52e2ab6bc68" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/5c283063f405425894ee77d446594209" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/71b247fd1d68443abe7ba103519d7147" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/dbba5067627a482ebf93c42b4d859b6c" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/b0c72eb83ed241b4bf44029d6c64a88c" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/0a4b6ef6f6504765bd4d377506d5bc9c" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/b705468d306f4339a0bb5d08340661c8" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/97268f9474684ab2951254f81f6722b2" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/9c4457ad318c43fa9f4b02ebb683b063" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/464f0ef8e1794b6f88bb1816b67fbe1e" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/bbaaa4cb04af4e68a4b7ff968bd6c974" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/95af3a79faa34c25acbdf48ddbe053a7" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/7fa72ac5e211431d968eb0ab2394822d" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/d8dae6e50f2c44cab08e977fe5962ffa" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/b95dade6f04845138b2b23e4b468336e" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/5db8c3444ecb42668a762784efd972b2" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/714b9ec4509e4d10be83190322287465" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/95af34ff1a374d2db429b64431d3613a" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/4a314090ed2247308fe7b3e5c60ad668" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/2e00551d6882462d986225e856827528" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/30350e97d23145479fb916ebbce2d2f3" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/951a76af23da4889a80a910c169ad048" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/57dcd26cbf7746bb94a5df39083d40b8" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/0247020eb1e54cdbb60dfdb33b51600e" />
-        <option value="$USER_HOME$/.config/.cool-request/request/serialize/9508648386034ff7a58ec90a935e744c" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/b65448223a98485fa714ffb215b22d35" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/d56ebee0c4e14e28b81a6fa3becea230" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/662cbe0d7ec34f56afa95b598bee2727" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/fb605d8b54a9496298479fd3b716ab63" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/318e241f5cf94cf3985aa35f6b1be06a" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/c2fb1c93dca3435299a30cc3a02a801b" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/8e8581e096734efc97574e453d28a421" />
+        <option value="$USER_HOME$/.config/.cool-request/request/serialize/379aa868a31e411d8c9d3445e1af54b5" />
       </list>
     </option>
     <option name="projectCachePath" value="project-5ee0d7ff-a97a-4305-92ad-76f41d35ad90" />

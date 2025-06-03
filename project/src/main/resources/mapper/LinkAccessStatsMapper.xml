@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xwj.shortlink.dao.mapper.LinkAccessStatsMapper">
+    <insert id="shortLinkStats">
+        insert into t_link_access_stats (full_short_url, date, pv, uv, uip, hour, weekday, create_time, update_time,
+                                         del_flag)
+        VALUES (#{linkAccessStats.fullShortUrl}, #{linkAccessStats.date}, #{linkAccessStats.pv}, #{linkAccessStats.uv},
+                #{linkAccessStats.uip}, #{linkAccessStats.hour}, #{linkAccessStats.weekday}, now(), now(), 0)
+        ON DUPLICATE KEY UPDATE pv  = pv + #{linkAccessStats.pv},
+                                uv  = uv + #{linkAccessStats.uv},
+                                uip = uip + #{linkAccessStats.uip}
+    </insert>
+</mapper>
