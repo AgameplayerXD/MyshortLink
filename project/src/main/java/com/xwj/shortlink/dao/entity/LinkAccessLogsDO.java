@@ -2,6 +2,7 @@ package com.xwj.shortlink.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,8 +18,9 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @TableName("t_link_access_logs")
-public class LinkAccessLogs {
+public class LinkAccessLogsDO {
     //ID@TableId
     private Long id;
 

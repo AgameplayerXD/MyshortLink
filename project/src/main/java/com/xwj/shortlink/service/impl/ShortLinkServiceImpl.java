@@ -21,7 +21,6 @@ import com.xwj.shortlink.common.convention.exception.ServiceException;
 import com.xwj.shortlink.common.enums.VailDateTypeEnum;
 import com.xwj.shortlink.dao.entity.*;
 import com.xwj.shortlink.dao.mapper.*;
-import com.xwj.shortlink.dto.biz.ShortLinkStatsRecordDTO;
 import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
 import com.xwj.shortlink.dto.resp.ShortLinkCountLinkRespDTO;
@@ -69,6 +68,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
+    private final LinkAccessLogsMapper linkAccessLogsMapper;
 
     @Value("${short-link.stats.local.amap-key}")
     private String mapApiKey;
@@ -392,76 +392,89 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         } else {
             throw new ClientException("地图数据获取异常");
         }
+        String remoteAddr = LinkStatsUtil.getClientIp(((HttpServletRequest) request));
+        String device = LinkStatsUtil.getDevice(((HttpServletRequest) request));
+        String network = LinkStatsUtil.getNetwork(((HttpServletRequest) request));
+        String userBrowser = LinkStatsUtil.getUserBrowser(((HttpServletRequest) request));
+        String userOS = LinkStatsUtil.getUserOS(((HttpServletRequest) request));
         LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder()
-                .os(LinkStatsUtil.getUserOS(((HttpServletRequest) request)))
+                .os(userOS)
                 .cnt(1)
                 .fullShortUrl(fullShortUrl)
                 .date(new Date())
                 .build();
         linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
         LinkBrowserStatsDO linkBrowserStats = LinkBrowserStatsDO.builder()
-                .browser(LinkStatsUtil.getUserBrowser((HttpServletRequest) request))
+                .browser(userBrowser)
                 .date(new Date())
                 .fullShortUrl(fullShortUrl)
                 .cnt(1)
                 .build();
         linkBrowserStatsMapper.shortLInkBrowserStats(linkBrowserStats);
-    }
-
-    //TODO ShortLinkStatsRecordDTO 待使用
-
-    /**
-     * 获取短链接的基础状态
-     */
-    private ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(String fullShortUrl, ServletRequest request, ServletResponse response) {
-        //通过cookie来判断是否需要更新uv
-        AtomicBoolean uvFirstFlag = new AtomicBoolean();
-        Cookie[] cookies = ((HttpServletRequest) request).getCookies();
-        AtomicReference<String> uv = new AtomicReference<>();
-        //客户端如果没有携带cookie过来，则为客户端创建cookie
-        Runnable addCookieTask = () -> {
-            uv.set(UUID.fastUUID().toString());
-            Cookie uvCookie = new Cookie("uv", uv.get());
-            uvCookie.setMaxAge(60 * 60 * 24 * 30);
-            uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf("/"), fullShortUrl.length()));
-            ((HttpServletResponse) response).addCookie(uvCookie);
-            //这个用户是第一次访问
-            uvFirstFlag.set(Boolean.TRUE);
-            stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
-        };
-        //如果客户端已经带了cookie过来，说明这个用户不是第一次访问
-        if (ArrayUtil.isNotEmpty(cookies)) {
-            Arrays.stream(cookies)
-                    .filter(each -> StrUtil.equals("uv", each.getName()))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .ifPresentOrElse(each -> {
-                        Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
-                        uvFirstFlag.set(uvAdded != null && uvAdded > 0L);
-                    }, addCookieTask);
-        } else {
-            //客户端没有携带cookie，说明是第一次访问
-            addCookieTask.run();
-        }
-        String remoteAddr = LinkStatsUtil.getClientIp(((HttpServletRequest) request));
-        String device = LinkStatsUtil.getDevice(((HttpServletRequest) request));
-        String network = LinkStatsUtil.getNetwork(((HttpServletRequest) request));
-        String userBrowser = LinkStatsUtil.getUserBrowser(((HttpServletRequest) request));
-        String userOS = LinkStatsUtil.getUserOS(((HttpServletRequest) request));
-        Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_KEY + fullShortUrl, remoteAddr);
-        boolean uipFirstFlag = uipAdded != null && uipAdded > 0L;
-        return ShortLinkStatsRecordDTO.builder()
-                .remoteAddr(remoteAddr)
-                .os(userOS)
-                .uv(uv.get())
+        LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder()
+                .user(uv.get())
+                .ip(remoteAddr)
                 .browser(userBrowser)
-                .currentDate(new Date())
-                .device(device)
-                .network(network)
-                .uvFirstFlag(uvFirstFlag.get())
-                .uipFirstFlag(uipFirstFlag)
+                .os(userOS)
+                .fullShortUrl(fullShortUrl)
                 .build();
+        linkAccessLogsMapper.insert(linkAccessLogsDO);
     }
+
+//    //TODO ShortLinkStatsRecordDTO 待使用
+//
+//    /**
+//     * 获取短链接的基础状态
+//     */
+//    private ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(String fullShortUrl, ServletRequest request, ServletResponse response) {
+//        //通过cookie来判断是否需要更新uv
+//        AtomicBoolean uvFirstFlag = new AtomicBoolean();
+//        Cookie[] cookies = ((HttpServletRequest) request).getCookies();
+//        AtomicReference<String> uv = new AtomicReference<>();
+//        //客户端如果没有携带cookie过来，则为客户端创建cookie
+//        Runnable addCookieTask = () -> {
+//            uv.set(UUID.fastUUID().toString());
+//            Cookie uvCookie = new Cookie("uv", uv.get());
+//            uvCookie.setMaxAge(60 * 60 * 24 * 30);
+//            uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf("/"), fullShortUrl.length()));
+//            ((HttpServletResponse) response).addCookie(uvCookie);
+//            //这个用户是第一次访问
+//            uvFirstFlag.set(Boolean.TRUE);
+//            stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
+//        };
+//        //如果客户端已经带了cookie过来，说明这个用户不是第一次访问
+//        if (ArrayUtil.isNotEmpty(cookies)) {
+//            Arrays.stream(cookies)
+//                    .filter(each -> StrUtil.equals("uv", each.getName()))
+//                    .findFirst()
+//                    .map(Cookie::getValue)
+//                    .ifPresentOrElse(each -> {
+//                        Long uvAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UV_KEY + fullShortUrl, uv.get());
+//                        uvFirstFlag.set(uvAdded != null && uvAdded > 0L);
+//                    }, addCookieTask);
+//        } else {
+//            //客户端没有携带cookie，说明是第一次访问
+//            addCookieTask.run();
+//        }
+//        String remoteAddr = LinkStatsUtil.getClientIp(((HttpServletRequest) request));
+//        String device = LinkStatsUtil.getDevice(((HttpServletRequest) request));
+//        String network = LinkStatsUtil.getNetwork(((HttpServletRequest) request));
+//        String userBrowser = LinkStatsUtil.getUserBrowser(((HttpServletRequest) request));
+//        String userOS = LinkStatsUtil.getUserOS(((HttpServletRequest) request));
+//        Long uipAdded = stringRedisTemplate.opsForSet().add(SHORT_LINK_STATS_UIP_KEY + fullShortUrl, remoteAddr);
+//        boolean uipFirstFlag = uipAdded != null && uipAdded > 0L;
+//        return ShortLinkStatsRecordDTO.builder()
+//                .remoteAddr(remoteAddr)
+//                .os(userOS)
+//                .uv(uv.get())
+//                .browser(userBrowser)
+//                .currentDate(new Date())
+//                .device(device)
+//                .network(network)
+//                .uvFirstFlag(uvFirstFlag.get())
+//                .uipFirstFlag(uipFirstFlag)
+//                .build();
+//    }
 
     /**
      * 根据传入的原始链接来创建短链接
