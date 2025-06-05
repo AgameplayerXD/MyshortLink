@@ -68,6 +68,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final RBloomFilter<String> linkCreateCachePenetrationBloomFilter;
     private final StringRedisTemplate stringRedisTemplate;
     private final LinkOsStatsMapper linkOsStatsMapper;
+    private final LinkBrowserStatsMapper linkBrowserStatsMapper;
 
     @Value("${short-link.stats.local.amap-key}")
     private String mapApiKey;
@@ -398,6 +399,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .date(new Date())
                 .build();
         linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
+        LinkBrowserStatsDO linkBrowserStats = LinkBrowserStatsDO.builder()
+                .browser(LinkStatsUtil.getUserBrowser((HttpServletRequest) request))
+                .date(new Date())
+                .fullShortUrl(fullShortUrl)
+                .cnt(1)
+                .build();
+        linkBrowserStatsMapper.shortLInkBrowserStats(linkBrowserStats);
     }
 
     //TODO ShortLinkStatsRecordDTO 待使用
