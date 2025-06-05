@@ -69,6 +69,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
     private final LinkAccessLogsMapper linkAccessLogsMapper;
+    private final LinkDeviceStatsMapper linkDeviceStatsMapper;
 
     @Value("${short-link.stats.local.amap-key}")
     private String mapApiKey;
@@ -416,9 +417,18 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .ip(remoteAddr)
                 .browser(userBrowser)
                 .os(userOS)
+                .device(device)
+                .network(network)
                 .fullShortUrl(fullShortUrl)
                 .build();
         linkAccessLogsMapper.insert(linkAccessLogsDO);
+        LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder()
+                .device(device)
+                .cnt(1)
+                .fullShortUrl(fullShortUrl)
+                .date(new Date())
+                .build();
+        linkDeviceStatsMapper.shortLInkDeviceStats(linkDeviceStatsDO);
     }
 
 //    //TODO ShortLinkStatsRecordDTO 待使用
