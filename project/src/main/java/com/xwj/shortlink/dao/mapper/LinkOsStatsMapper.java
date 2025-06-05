@@ -1,7 +1,8 @@
 package com.xwj.shortlink.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.xwj.shortlink.dao.entity.LinkOsStats;
+import com.xwj.shortlink.dao.entity.LinkOsStatsDO;
+import org.apache.ibatis.annotations.Param;
 
 
 /**
@@ -10,6 +11,7 @@ import com.xwj.shortlink.dao.entity.LinkOsStats;
  * @author makejava
  * @since 2025-06-03 19:37:25
  */
-public interface LinkOsStatsMapper extends BaseMapper<LinkOsStats> {
+public interface LinkOsStatsMapper extends BaseMapper<LinkOsStatsDO> {
+    void shortLinkOsState(@Param("linkOsStats") LinkOsStatsDO requestParam);
 }
 

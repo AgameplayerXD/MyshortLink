@@ -19,14 +19,8 @@ import com.xwj.shortlink.common.constant.SystemConstants;
 import com.xwj.shortlink.common.convention.exception.ClientException;
 import com.xwj.shortlink.common.convention.exception.ServiceException;
 import com.xwj.shortlink.common.enums.VailDateTypeEnum;
-import com.xwj.shortlink.dao.entity.LinkAccessStatsDO;
-import com.xwj.shortlink.dao.entity.LinkLocaleStatsDO;
-import com.xwj.shortlink.dao.entity.ShortLinkDO;
-import com.xwj.shortlink.dao.entity.ShortLinkGotoDO;
-import com.xwj.shortlink.dao.mapper.LinkAccessStatsMapper;
-import com.xwj.shortlink.dao.mapper.LinkLocaleStatsMapper;
-import com.xwj.shortlink.dao.mapper.ShortLinkGotoMapper;
-import com.xwj.shortlink.dao.mapper.ShortLinkMapper;
+import com.xwj.shortlink.dao.entity.*;
+import com.xwj.shortlink.dao.mapper.*;
 import com.xwj.shortlink.dto.biz.ShortLinkStatsRecordDTO;
 import com.xwj.shortlink.dto.req.ShortLinkCreateReqDTO;
 import com.xwj.shortlink.dto.req.ShortLinkUpdateReqDTO;
@@ -73,6 +67,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final RedissonClient redissonClient;
     private final RBloomFilter<String> linkCreateCachePenetrationBloomFilter;
     private final StringRedisTemplate stringRedisTemplate;
+    private final LinkOsStatsMapper linkOsStatsMapper;
 
     @Value("${short-link.stats.local.amap-key}")
     private String mapApiKey;
@@ -396,6 +391,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         } else {
             throw new ClientException("地图数据获取异常");
         }
+        LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder()
+                .os(LinkStatsUtil.getUserOS(((HttpServletRequest) request)))
+                .cnt(1)
+                .fullShortUrl(fullShortUrl)
+                .date(new Date())
+                .build();
+        linkOsStatsMapper.shortLinkOsState(linkOsStatsDO);
     }
 
     //TODO ShortLinkStatsRecordDTO 待使用

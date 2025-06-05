@@ -3,6 +3,7 @@ package com.xwj.shortlink.dao.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xwj.shortlink.common.databsase.BaseDO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,8 +19,9 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @TableName("t_link_os_stats")
-public class LinkOsStats extends BaseDO {
+public class LinkOsStatsDO extends BaseDO {
     //ID@TableId
     private Long id;
 
